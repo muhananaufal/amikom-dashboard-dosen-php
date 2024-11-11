@@ -1,0 +1,91 @@
+CREATE DATABASE backend-uas;
+USE backend-uas;
+
+-- Tabel untuk pengguna (user)
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'dosen', 'mahasiswa') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel untuk mahasiswa
+CREATE TABLE mahasiswa (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    nim VARCHAR(15) UNIQUE NOT NULL,
+    nama VARCHAR(100) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabel untuk dosen
+CREATE TABLE dosen (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    nidn VARCHAR(15) UNIQUE NOT NULL,
+    nama VARCHAR(100) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabel mata kuliah
+CREATE TABLE mata_kuliah (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kode_mk VARCHAR(10) UNIQUE NOT NULL,
+    nama_mk VARCHAR(100) NOT NULL,
+    nomor_mk INT NOT NULL,
+    sks INT NOT NULL
+);
+
+-- Tabel untuk menyimpan nilai mahasiswa per mata kuliah
+CREATE TABLE nilai (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mahasiswa_id INT NOT NULL,
+    mata_kuliah_id INT NOT NULL,
+    dosen_id INT NOT NULL,
+    kehadiran DECIMAL(5, 2) DEFAULT 0.0,
+    tugas DECIMAL(5, 2) DEFAULT 0.0,
+    kuis DECIMAL(5, 2) DEFAULT 0.0,
+    responsi DECIMAL(5, 2) DEFAULT 0.0,
+    uts DECIMAL(5, 2) DEFAULT 0.0,
+    uas DECIMAL(5, 2) DEFAULT 0.0,
+    total_nilai DECIMAL(5, 2) GENERATED ALWAYS AS (
+        kehadiran * 0.1 + 
+        tugas * 0.15 + 
+        kuis * 0.1 + 
+        responsi * 0.15 + 
+        uts * 0.25 + 
+        uas * 0.25
+    ) STORED,
+    keterangan CHAR(1) GENERATED ALWAYS AS (
+        CASE
+            WHEN total_nilai >= 85 THEN 'A'
+            WHEN total_nilai >= 70 THEN 'B'
+            WHEN total_nilai >= 55 THEN 'C'
+            WHEN total_nilai >= 40 THEN 'D'
+            ELSE 'E'
+        END
+    ) STORED,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id) ON DELETE CASCADE,
+    FOREIGN KEY (mata_kuliah_id) REFERENCES mata_kuliah(id) ON DELETE CASCADE,
+    FOREIGN KEY (dosen_id) REFERENCES dosen(id) ON DELETE CASCADE
+);
+
+-- Tabel relasi dosen dengan mata kuliah
+CREATE TABLE dosen_mata_kuliah (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    dosen_id INT NOT NULL,
+    mata_kuliah_id INT NOT NULL,
+    FOREIGN KEY (dosen_id) REFERENCES dosen(id) ON DELETE CASCADE,
+    FOREIGN KEY (mata_kuliah_id) REFERENCES mata_kuliah(id) ON DELETE CASCADE
+);
+
+-- Tabel relasi mahasiswa dengan mata kuliah
+CREATE TABLE mahasiswa_mata_kuliah (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mahasiswa_id INT NOT NULL,
+    mata_kuliah_id INT NOT NULL,
+    FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id) ON DELETE CASCADE,
+    FOREIGN KEY (mata_kuliah_id) REFERENCES mata_kuliah(id) ON DELETE CASCADE
+);

@@ -1,0 +1,64 @@
+// Tabel pengguna (user)
+Table users {
+    id INT [pk, increment]
+    username VARCHAR [unique, not null]
+    password VARCHAR [not null]
+    role ENUM('admin', 'dosen', 'mahasiswa') [not null]
+    created_at TIMESTAMP [default: 'CURRENT_TIMESTAMP']
+}
+
+// Tabel mahasiswa
+Table mahasiswa {
+    id INT [pk, increment]
+    user_id INT [not null, ref: > users.id]
+    nim VARCHAR(15) [unique, not null]
+    nama VARCHAR(100) [not null]
+}
+
+// Tabel dosen
+Table dosen {
+    id INT [pk, increment]
+    user_id INT [not null, ref: > users.id]
+    nidn VARCHAR(15) [unique, not null]
+    nama VARCHAR(100) [not null]
+}
+
+// Tabel mata kuliah
+Table mata_kuliah {
+    id INT [pk, increment]
+    kode_mk VARCHAR(10) [unique, not null]
+    nama_mk VARCHAR(100) [not null]
+    nomor_mk INT [not null]
+    sks INT [not null]
+}
+
+// Tabel untuk menyimpan nilai mahasiswa per mata kuliah
+Table nilai {
+    id INT [pk, increment]
+    mahasiswa_id INT [not null, ref: > mahasiswa.id]
+    mata_kuliah_id INT [not null, ref: > mata_kuliah.id]
+    dosen_id INT [not null, ref: > dosen.id]
+    kehadiran DECIMAL(5, 2) [default: 0.0]
+    tugas DECIMAL(5, 2) [default: 0.0]
+    kuis DECIMAL(5, 2) [default: 0.0]
+    responsi DECIMAL(5, 2) [default: 0.0]
+    uts DECIMAL(5, 2) [default: 0.0]
+    uas DECIMAL(5, 2) [default: 0.0]
+    total_nilai DECIMAL(5, 2) [note: 'Dihitung otomatis berdasarkan rumus']
+    keterangan CHAR(1) [note: 'Dihasilkan otomatis berdasarkan total nilai']
+    updated_at TIMESTAMP [default: 'CURRENT_TIMESTAMP']
+}
+
+// Tabel relasi dosen dengan mata kuliah
+Table dosen_mata_kuliah {
+    id INT [pk, increment]
+    dosen_id INT [not null, ref: > dosen.id]
+    mata_kuliah_id INT [not null, ref: > mata_kuliah.id]
+}
+
+// Tabel relasi mahasiswa dengan mata kuliah
+Table mahasiswa_mata_kuliah {
+    id INT [pk, increment]
+    mahasiswa_id INT [not null, ref: > mahasiswa.id]
+    mata_kuliah_id INT [not null, ref: > mata_kuliah.id]
+}

@@ -90,15 +90,6 @@ $infoTambahan = $mahasiswaController->getJumlahKelasDanRataRataNilai($mahasiswa_
   </div>
 </div>
 
-<h2>Welcome, Dosen <?php echo htmlspecialchars($mahasiswaDetails['username']); ?></h2>
-<p>Name: </p>
-<p>NIDN: <?php echo htmlspecialchars($mahasiswaDetails['nidn']); ?></p>
-
-<ul>
-  <li><a href="dosen_manage_courses.php">Manage Courses</a></li>
-  <li><a href="dosen_reports.php">Reports</a></li>
-</ul>
-
 
 
 <?php require_once '../components/footer.php'; ?>
